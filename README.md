@@ -1,24 +1,26 @@
-# Vinc3e Valorant Rank Overlay
+# Vinc3e Valorant Overlay · Cloudflare Worker
 
-Mini-overlay OBS : **icône de rang + RR uniquement**, sans fond, cadre ni bordure.
+Affiche **seulement l’icône du rang et les RR** de `Vinc3e#uwu` (EU) dans OBS. Aucun fond, aucune bordure, aucun logiciel supplémentaire.
 
-## Mise en ligne sur GitHub Pages
+## 1. Créer le Worker (Cloudflare)
 
-1. Créer un dépôt GitHub public, par exemple `vinc3e-valorant-overlay`.
-2. Importer **tous les fichiers et dossiers** de ce projet, y compris `.github/workflows/update.yml`.
-3. Obtenir une clé API HenrikDev via https://docs.henrikdev.xyz/ .
-4. GitHub → dépôt → **Settings → Secrets and variables → Actions → New repository secret** : nom `HENRIK_API_KEY`, valeur = clé. Ne jamais la placer dans un fichier du dépôt.
-5. Onglet **Actions → Actualiser les RR Valorant → Run workflow** pour lancer la première mise à jour.
-6. **Settings → Pages → Build and deployment → Deploy from a branch** : branche `main`, dossier `/ (root)` → Save.
-7. Attendre la publication puis ouvrir `https://VOTRE-PSEUDO.github.io/vinc3e-valorant-overlay/`.
-8. Dans OBS → Sources → Navigateur : coller cette URL. Dimensions conseillées : **220 × 65**. La source doit être placée au-dessus de la capture du jeu.
+1. Connecte-toi à https://dash.cloudflare.com/ → **Workers & Pages** → **Create** → Worker.
+2. Nomme-le `vinc3e-valorant-rank` et crée-le.
+3. Ouvre **Edit code** et remplace le code par le contenu de `worker.js`, puis **Deploy**.
+4. Va dans **Settings → Variables and Secrets → Add** et ajoute **HENRIK_API_KEY** en type **Secret**, avec ta clé HenrikDev (https://dashboard.henrikdev.xyz/). Enregistre/déploie la modification.
+5. Ouvre `https://NOM-DU-WORKER.workers.dev/rank` et vérifie qu'un JSON contenant `rank`, `rr` et `icon` apparaît. Une erreur 503 signifie notamment que la clé ou les données du compte sont indisponibles.
 
-Pour prévisualiser l'overlay sur un fond sombre, ajouter `?preview=1` à l'URL dans un navigateur (ne pas utiliser ce paramètre dans OBS).
+## 2. Modifier le site GitHub Pages
 
-## Actualisation
+1. Dans `index.html`, remplace **uniquement** `https://REPLACE-WITH-YOUR-WORKER.workers.dev/rank` par l'URL `/rank` exacte de ton Worker.
+2. Téléverse `index.html` dans ton dépôt GitHub Pages à la racine et active Pages sur la branche `main` si nécessaire.
+3. Ouvre l'URL GitHub Pages (sans `?preview=1`) et ajoute-la dans OBS → **Source navigateur**, largeur **220**, hauteur **65**.
 
-GitHub Actions est programmé toutes les 10 minutes, mais les tâches planifiées peuvent être retardées. L'API HenrikDev peut aussi mettre ses données en cache. OBS relit `stats.json` toutes les minutes. Ce n'est pas du temps réel.
+## Actualisation et limites
 
-## Important
-
-GitHub Pages est public : le rang, les RR et le Riot ID sont visibles dans les fichiers publics. **La clé API, elle, reste privée** dans GitHub Secrets. Si le dépôt interdit l'écriture par GitHub Actions, aller dans **Settings → Actions → General → Workflow permissions → Read and write permissions**. L'API HenrikDev est non officielle. Si l'API modifie son format, il faudra adapter `update_stats.py`.
+- OBS vérifie les données toutes les **60 secondes**. Le Worker conserve une réponse en cache pendant **60 secondes** par emplacement Cloudflare. Les données HenrikDev peuvent elles-mêmes être mises en cache plusieurs minutes selon l'offre API.
+- Une actualisation **instantanée** après la fin d'une partie n'est **pas garantie**. Les limites et quotas HenrikDev restent applicables.
+- Si le service API échoue, le widget conserve le dernier rang affiché jusqu'à la prochaine tentative, mais le premier chargement peut être vide.
+- Le projet utilise l'API non officielle HenrikDev et n'est pas affilié à Riot Games.
+- **Ne place jamais ta clé HenrikDev dans `index.html`, GitHub Pages ou une URL publique.**
+- L'ancien workflow GitHub Actions et `stats.json` ne sont plus nécessaires. Ils ont été retirés de cette version.
