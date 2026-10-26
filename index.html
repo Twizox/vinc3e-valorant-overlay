@@ -17,7 +17,7 @@ body.preview{background:#263145!important;padding:12px}body.preview #debug{displ
 <div id="overlay"><img id="icon" alt="Rang Valorant"><span id="rr"></span></div>
 <div id="debug" role="status"></div>
 <script>
-const WORKER_URL='https://vinc3e-valorant-overlay.guigui97457.workers.dev/rank';
+const WORKER_URL='https://valorant.guigui97457.workers.dev/rank';
 const icon=document.querySelector('#icon'), rr=document.querySelector('#rr'), debug=document.querySelector('#debug');
 if(new URLSearchParams(location.search).has('preview'))document.body.classList.add('preview');
 let tiersCache=null;
